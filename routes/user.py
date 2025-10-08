@@ -30,7 +30,7 @@ def find_all_users():
 
 # Update
 @user.put('/users/{id}')
-def update_user(id: str, user: user):
+def update_user(id: str, user: User):
     updated_data = {**user.dict(), "updatedAt": datetime.utcnow()}
     result = db.user.update_one(
         {"_id": ObjectId(id)},
