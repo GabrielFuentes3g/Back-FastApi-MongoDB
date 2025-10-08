@@ -1,14 +1,14 @@
 from pydantic import BaseModel
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 
 class Product(BaseModel):
     id: Optional[str] = None
     storeid: Optional[str] = None
-    name: str                   # obligatorio
+    name: str                   
     description: Optional[str] = None
-    price: float                # obligatorio
+    price: float                
     stockQuantity: Optional[int] = 0
-    category: Optional[str] = None
+    categories: Optional[List[str]] = []
     createdAt: Optional[datetime] = None
     updatedAt: Optional[datetime] = None
