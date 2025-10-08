@@ -4,21 +4,24 @@ from fastapi import APIRouter, HTTPException
 from models.store import Store
 from config.db import db
 from schemas.store import storeEntity,storesEntity
-from bson import ObjectId
+from bson import ObjectId,errors
 
 store = APIRouter()
 
-# Crate
+# Create
 @store.post('/stores/')
 def create_store(user_id: str, store_data: Store):
     try:
         new_store = store_data.dict()
+
+        # Convertir logoURL a string si existe
+        if new_store.get("logoURL"):
+            new_store["logoURL"] = str(new_store["logoURL"])
+
         new_store["userID"] = user_id
         new_store["createdAt"] = datetime.utcnow()
         new_store["updatedAt"] = datetime.utcnow()
-
         result = db.store.insert_one(new_store)
-
         created_store = db.store.find_one({"_id": result.inserted_id})
 
         return storeEntity(created_store)
@@ -33,6 +36,16 @@ def find_store(id: str):
     if not store_data:
         raise HTTPException(status_code=404, detail="tienda no encontrada")
     return storeEntity(store_data)
+
+@store.get('/stores/{user_id}')
+def find_stores_by_user(user_id: str):
+    stores_cursor = db.store.find({"userID": user_id})  # NO ObjectId
+    stores_list = list(stores_cursor)
+
+    if not stores_list:
+        raise HTTPException(status_code=404, detail="No se encontraron tiendas para este usuario")
+    
+    return storesEntity(stores_list)
 
 @store.get('/stores')
 def find_all_stores():

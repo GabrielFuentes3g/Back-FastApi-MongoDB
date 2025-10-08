@@ -1,7 +1,7 @@
 from datetime import datetime
 from email.headerregistry import Address
 from typing import List, Optional
-
+from models.address import Address
 from pydantic import BaseModel, EmailStr
 
 
