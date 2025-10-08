@@ -10,3 +10,5 @@ def userEntity(item) -> dict:
         "createdAt": item.get("createdAt"),
         "updatedAt": item.get("updatedAt")
     }
+def usersEntity(entity) -> list:
+    return [userEntity(item) for item in entity]
