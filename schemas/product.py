@@ -6,7 +6,7 @@ def productEntity(item) -> dict:
         "description": item.get("description"),
         "price": item.get("price"),
         "stockQuantity": item.get("stockQuantity"),
-        "categories": [str(cid) for cid in item.get("categories", [])],
+        "categories": item.get("categories", []),
         "createdAt": item.get("createdAt"),
         "updatedAt": item.get("updatedAt")
     }

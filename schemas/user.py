@@ -6,9 +6,7 @@ def userEntity(item) -> dict:
         "email": item.get("email"),
         "password": item.get("password"),
         "role": item.get("role"),
+        "addresses": item.get("addresses", []),
         "createdAt": item.get("createdAt"),
         "updatedAt": item.get("updatedAt")
     }
-
-def usersEntity(entity) -> list:
-    return [userEntity(item) for item in entity]
