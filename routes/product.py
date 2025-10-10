@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException
 from models.product import Product
 from config.db import db
 from schemas.product import productEntity,productsEntity
-from bson import ObjectId
+from bson import ObjectId # type: ignore
 
 product = APIRouter()
 
