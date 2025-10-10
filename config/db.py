@@ -1,9 +1,16 @@
 import certifi
+import os
 from pymongo import MongoClient
+from dotenv import load_dotenv
+
+load_dotenv()
 
 conn = MongoClient(
-    "mongodb+srv://gabrielfuentes:20195263@clusterfastapi.zvsrar2.mongodb.net/MyEcomersDB?retryWrites=true&w=majority&appName=ClusterFastApi",
+    os.environ.get('MONGO_URI'),
     tlsCAFile=certifi.where()
 )
 
 db = conn["mydb"]
+
+
+

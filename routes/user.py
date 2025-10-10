@@ -11,10 +11,17 @@ user = APIRouter()
 # Crate
 @user.post('/users/')
 def create_user(user: User):
-    new_user = dict(user)
-    result = db.user.insert_one(new_user)
-    created_user = db.user.find_one({"_id": result.inserted_id})
-    return userEntity(created_user)
+    now = datetime.utcnow()
+    obj_id = ObjectId()
+    user_dict = user.dict(exclude_none=True)
+    user_dict["_id"] = obj_id            # Mongo _id (ObjectId)
+    user_dict["id"] = str(obj_id)       # campo string que usaremos como referencia
+    user_dict["createdAt"] = now
+    user_dict["updatedAt"] = now
+
+    db.users.insert_one(user_dict)
+    user_dict.pop("_id")  # opcional: no devolver ObjectId en la respuesta
+    return user_dict
 
 # Research
 @user.get('/users/{id}')
