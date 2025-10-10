@@ -12,3 +12,7 @@ def storeEntity(item) -> dict:
 
 def storesEntity(entity) -> list:
     return [storeEntity(item) for item in entity]
+
+def storesFromUserEntity(entity,user_id) -> list:
+    filtered_stores = [item for item in entity if item.get("userID") == user_id]
+    return [storeEntity(item) for item in filtered_stores]
