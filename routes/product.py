@@ -24,7 +24,7 @@ def get_product_by_id(id: str): #G
     return productEntity(product_data)
 
 @product.get('')
-def get_products():
+def get_products(): #G
     return productsEntity(db.product.find())
 
 @product.get('/store/{store_id}')
@@ -48,6 +48,14 @@ def update_product(id: str, product: Product):
         raise HTTPException(status_code=404, detail="Producto no encontrado")
     return {"message": "Producto actualizado correctamente"}
 
+@product.put('/{product_id}/name')
+def update_product_name(product_id: str, name: str):
+    return {"product_id": product_id, "name": name}
+
+@product.put('/{product_id}/description')
+def update_product_description(product_id: str, description: str):
+    return {"product_id": product_id, "description": description}
+
 @product.put('/{product_id}/stock')
 def update_product_stock(product_id: str, stockQuantity: int):
     return {"product_id": product_id, "stockQuantity": stockQuantity}
@@ -55,7 +63,6 @@ def update_product_stock(product_id: str, stockQuantity: int):
 @product.put('/{product_id}/price')
 def update_product_price(product_id: str, price: float):
     return {"product_id": product_id, "price": price}
-
 
 # Delete
 @product.delete('/products/{id}')
