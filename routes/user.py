@@ -9,20 +9,18 @@ from bson import ObjectId # type: ignore
 user = APIRouter(prefix="/users", tags=["Users"])
 
 # Crate
-    #Crear Usuarios
 @user.post('')
 def create_user(user: User):
-    now = datetime.utcnow()
-    obj_id = ObjectId()
-    user_dict = user.dict(exclude_none=True)
-    user_dict["_id"] = obj_id            # Mongo _id (ObjectId)
-    user_dict["id"] = str(obj_id)       # campo string que usaremos como referencia
-    user_dict["createdAt"] = now
-    user_dict["updatedAt"] = now
 
-    db.users.insert_one(user_dict)
-    user_dict.pop("_id")  # opcional: no devolver ObjectId en la respuesta
-    return user_dict
+#validar si el email ya existe
+    if db.users.find_one({"email": user.email}):
+        raise HTTPException(status_code=400, detail="El email ya está registrado")
+    else:
+        new_user = dict(user)
+        result = db.user.insert_one(new_user)
+        created_user = db.user.find_one({"_id": result.inserted_id})
+        db.users.insert_one(created_user)
+        return {"message": "Usuario creado correctamente"}
 
 # Research
 
