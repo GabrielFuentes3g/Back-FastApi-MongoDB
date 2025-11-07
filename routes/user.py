@@ -9,7 +9,7 @@ from bson import ObjectId # type: ignore
 user = APIRouter(prefix="/users", tags=["Users"])
 
 # Crate
-@user.post('')
+@user.post('') #Done
 def create_user(user: User):
 
 #validar si el email ya existe
@@ -24,11 +24,11 @@ def create_user(user: User):
 
 # Research
 
-@user.get('')
+@user.get('') #Done
 def get_users():
     return usersEntity(db.user.find())
 
-@user.get('/{user_id}')
+@user.get('/{user_id}') #Done
 def get_user_by_id(user_id: str):
     user_data = db.user.find_one({"_id": ObjectId(user_id)})
     if not user_data:
@@ -37,7 +37,10 @@ def get_user_by_id(user_id: str):
 
 @user.get('/email/{email}')
 def get_user_by_email(email: str):
-    return email
+    user_data = db.user.find_one({"email": email})
+    if not user_data:
+        raise HTTPException(status_code=404, detail="usuario no encontrado")
+    return userEntity(user_data)
 
 # Update
 
