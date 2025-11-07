@@ -55,15 +55,22 @@ def update_user_password(user_id: str, new_password: str): #Done
     return {"message": "contraseña actualizada correctamente"}
 
 @user.put('/{user_id}/profile')
-def update_user_profile(user_id: str, user: dict):
-    updated_data = {**user.dict(), "updatedAt": datetime.utcnow()}
+def update_user_profile(user_id: str, user: dict): #Done
+    update_data = {k: v for k, v in user.items() if k in ["firstname", "lastname", "email"]}
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No hay datos válidos para actualizar")
+    
+    update_data["updatedAt"] = datetime.utcnow()
+    
     result = db.user.update_one(
         {"_id": ObjectId(user_id)},
-        {"$set": updated_data}
+        {"$set": update_data}
     )
+    
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="usuario no encontrado")
-    return {"message": "usuario actualizado correctamente"}
+    
+    return {"message": "perfil de usuario actualizado correctamente"}
 
 # Delete
 @user.delete('/users/{id}')
