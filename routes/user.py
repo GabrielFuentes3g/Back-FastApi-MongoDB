@@ -6,10 +6,11 @@ from schemas.user import userEntity,usersEntity
 from config.db import db
 from bson import ObjectId # type: ignore
 
-user = APIRouter()
+user = APIRouter(prefix="/users", tags=["Users"])
 
 # Crate
-@user.post('/users/')
+    #Crear Usuarios
+@user.post('')
 def create_user(user: User):
     now = datetime.utcnow()
     obj_id = ObjectId()
@@ -24,23 +25,33 @@ def create_user(user: User):
     return user_dict
 
 # Research
-@user.get('/users/{id}')
-def find_user(id: str):
-    user_data = db.user.find_one({"_id": ObjectId(id)})
+
+@user.get('')
+def get_users():
+    return usersEntity(db.user.find())
+
+@user.get('/{user_id}')
+def get_user_by_id(user_id: str):
+    user_data = db.user.find_one({"_id": ObjectId(user_id)})
     if not user_data:
         raise HTTPException(status_code=404, detail="usuario no encontrado")
     return userEntity(user_data)
 
-@user.get('/users')
-def find_all_users():
-    return usersEntity(db.user.find())
+@user.get('/email/{email}')
+def get_user_by_email(email: str):
+    return email
 
 # Update
-@user.put('/users/{id}')
-def update_user(id: str, user: User):
+
+@user.put('/{user_id}/password')
+def update_user_password(user_id: str, new_password: str):
+    return {"user_id": user_id, "new_password": new_password}
+
+@user.put('/{user_id}/profile')
+def update_user_profile(user_id: str, user: dict):
     updated_data = {**user.dict(), "updatedAt": datetime.utcnow()}
     result = db.user.update_one(
-        {"_id": ObjectId(id)},
+        {"_id": ObjectId(user_id)},
         {"$set": updated_data}
     )
     if result.matched_count == 0:
@@ -56,3 +67,16 @@ def delete_user(id: str):
         raise HTTPException(status_code=404, detail="usuario no encontrado")
     
     return {"message": "usuario eliminado correctamente"}
+
+# Auth
+@user.post('/auth/login')
+def login_user(email: str, password: str):
+    return {"email": email, "password": password}
+
+@user.post('/auth/recover')
+def recover_password(email: str):
+    return email
+
+@user.post('/auth/reset')
+def reset_password(token: str, new_password: str):
+    return {"token": token, "new_password": new_password}
