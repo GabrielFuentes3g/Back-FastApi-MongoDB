@@ -6,10 +6,10 @@ from config.db import db
 from schemas.store import storeEntity,storesEntity, storesFromUserEntity
 from bson import ObjectId # type: ignore
 
-store = APIRouter()
+store = APIRouter(prefix="/stores", tags=["Stores"])
 
-
-@store.post('/stores/')
+# Create
+@store.post('')
 def create_store(user_id: str, store_data: Store):
     try:
         new_store = store_data.dict()
@@ -28,49 +28,52 @@ def create_store(user_id: str, store_data: Store):
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al crear la tienda: {str(e)}")
-
-
-
-
-
-
-
-# Create
-
 # Research
-@store.get('/stores/{user_id}')
-def find_all_stores_by_user(user_id: str):
+
+@store.get('')
+def get_stores():
+    return storesEntity(db.store.find())
+
+@store.get('/user/{user_id}')
+def get_stores_by_user(user_id: str):
     return storesFromUserEntity(user_id)
 
-@store.get('/stores/{id}')
-def find_store(id: str):
-    store_data = db.store.find_one({"_id": ObjectId(id)})
+@store.get('/{store_id}')
+def get_store_by_id(store_id: str):
+    store_data = db.store.find_one({"_id": ObjectId(store_id)})
     if not store_data:
         raise HTTPException(status_code=404, detail="tienda no encontrada")
     return storeEntity(store_data)
 
 
-
-@store.get('/stores')
-def find_all_stores():
-    return storesEntity(db.store.find())
-
 # Update
-@store.put('/stores/{id}')
-def update_store(id: str, store: Store):
+@store.put('/{store_id}') #gonna be deleted
+def update_store(store_id: str, store: Store):
     updated_data = {**store.dict(), "updatedAt": datetime.utcnow()}
     result = db.store.update_one(
-        {"_id": ObjectId(id)},
+        {"_id": ObjectId(store_id)},
         {"$set": updated_data}
     )
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="tienda no encontrada")
     return {"message": "tienda actualizado correctamente"}
 
+@store.put('/{store_id}/profile')
+def update_store_profile(store_id: str, store: dict):
+    return {"store_id": store_id, "store": store}
+
+@store.put('/{store_id}/logo')
+def update_store_logo(store_id: str, logo_url: str):
+    return {"store_id": store_id, "logo_url": logo_url}
+
+@store.put('/{store_id}/rating')
+def update_store_rating(store_id: str, rating: float):
+    return {"store_id": store_id, "rating": rating}
+
 # Delete
-@store.delete('/stores/{id}')
-def delete_store(id: str):
-    result = db.store.delete_one({"_id": ObjectId(id)})
+@store.delete('/{store_id}')
+def delete_store(store_id: str):
+    result = db.store.delete_one({"_id": ObjectId(store_id)})
 
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="tienda no encontrada")
