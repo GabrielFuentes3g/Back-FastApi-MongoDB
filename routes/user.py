@@ -36,7 +36,7 @@ def get_user_by_id(user_id: str):
     return userEntity(user_data)
 
 @user.get('/email/{email}')
-def get_user_by_email(email: str):
+def get_user_by_email(email: str): #Done
     user_data = db.user.find_one({"email": email})
     if not user_data:
         raise HTTPException(status_code=404, detail="usuario no encontrado")
@@ -44,9 +44,15 @@ def get_user_by_email(email: str):
 
 # Update
 
-@user.put('/{user_id}/password')
-def update_user_password(user_id: str, new_password: str):
-    return {"user_id": user_id, "new_password": new_password}
+@user.put('/{user_id}/password') 
+def update_user_password(user_id: str, new_password: str): #Done
+    result = db.user.update_one(
+        {"_id": ObjectId(user_id)},
+        {"$set": {"password": new_password, "updatedAt": datetime.utcnow()}}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="usuario no encontrado")
+    return {"message": "contraseña actualizada correctamente"}
 
 @user.put('/{user_id}/profile')
 def update_user_profile(user_id: str, user: dict):
