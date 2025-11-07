@@ -6,7 +6,7 @@ from routes.user import user
 from routes.category import category
 from routes.order import order
 from routes.payment import payment
-from routes.address import address # type: ignore
+from routes.adress import address
 
 main = FastAPI()
 
