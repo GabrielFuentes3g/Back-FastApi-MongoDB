@@ -73,7 +73,7 @@ def update_user_profile(user_id: str, user: dict): #Done
     return {"message": "perfil de usuario actualizado correctamente"}
 
 # Delete
-@user.delete('/users/{id}')
+@user.delete('/users/{id}') #Done
 def delete_user(id: str):
     result = db.user.delete_one({"_id": ObjectId(id)})
 
