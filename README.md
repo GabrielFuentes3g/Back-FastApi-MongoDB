@@ -14,7 +14,7 @@ Incluye manejo de usuarios, tiendas, productos, categorías, órdenes, pagos y d
 ## 📦 Instalación
 
 Clona el repositorio y entra a la carpeta del proyecto:
-git clone https://github.com/tu-usuario/Back-FastApi-MongoDB.git
+git clone https://github.com/GabrielFuentes3g/Back-FastApi-MongoDB
 cd Back-FastApi-MongoDB
 
 Crea un entorno virtual (opcional):
