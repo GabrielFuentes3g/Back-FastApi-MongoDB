@@ -85,7 +85,10 @@ def delete_user(id: str):
 # Auth
 @user.post('/auth/login')
 def login_user(email: str, password: str):
-    return {"email": email, "password": password}
+    user_data = db.user.find_one({"email": email, "password": password})
+    if not user_data:
+        raise HTTPException(status_code=401, detail="Credenciales inválidas")
+    return userEntity(user_data)
 
 @user.post('/auth/recover')
 def recover_password(email: str):
