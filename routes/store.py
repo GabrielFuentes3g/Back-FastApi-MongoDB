@@ -62,9 +62,22 @@ def update_store(store_id: str, store: Store):
         raise HTTPException(status_code=404, detail="tienda no encontrada")
     return {"message": "tienda actualizado correctamente"}
 
-@store.put('/{store_id}/profile')
-def update_store_profile(store_id: str, store: dict):
-    return {"store_id": store_id, "store": store}
+@store.put('/{store_id}/description') #Done
+def update_store_description(store_id: str, store: dict):
+    updated_data = {k: v for k, v in store.items() if k in ["description"]}
+    if not updated_data:
+        raise HTTPException(status_code=400, detail="No hay datos válidos para actualizar")
+    
+    updated_data["updatedAt"] = datetime.utcnow()
+    
+    result = db.store.update_one(
+        {"_id": ObjectId(store_id)},
+        {"$set": updated_data}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="tienda no encontrada")
+    return {"message": "descripción de la tienda actualizada correctamente"}
+
 
 @store.put('/{store_id}/logo')
 def update_store_logo(store_id: str, logo_url: str):
