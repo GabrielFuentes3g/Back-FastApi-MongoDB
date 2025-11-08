@@ -10,7 +10,7 @@ store = APIRouter(prefix="/stores", tags=["Stores"])
 
 # Create
 @store.post('')
-def create_store(user_id: str, store_data: Store):
+def create_store(user_id: str, store_data: Store): #Done
     try:
         new_store = store_data.dict()
         # Convertir logoURL a string si existe
@@ -33,15 +33,17 @@ def create_store(user_id: str, store_data: Store):
 
 # Research
 @store.get('')
-def get_stores():
+def get_stores(): #Done
     return storesEntity(db.store.find())
 
 @store.get('/user/{user_id}')
-def get_stores_by_user(user_id: str):
-    return storesFromUserEntity(user_id)
+def get_stores_by_user(user_id: str): #Done
+    stores = db.store.find({"userID": user_id})
+    return storesFromUserEntity(stores, user_id)
+
 
 @store.get('/{store_id}')
-def get_store_by_id(store_id: str):
+def get_store_by_id(store_id: str): #Done
     store_data = db.store.find_one({"_id": ObjectId(store_id)})
     if not store_data:
         raise HTTPException(status_code=404, detail="tienda no encontrada")
