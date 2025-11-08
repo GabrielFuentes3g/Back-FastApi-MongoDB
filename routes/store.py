@@ -13,23 +13,25 @@ store = APIRouter(prefix="/stores", tags=["Stores"])
 def create_store(user_id: str, store_data: Store):
     try:
         new_store = store_data.dict()
-
         # Convertir logoURL a string si existe
         if new_store.get("logoURL"):
             new_store["logoURL"] = str(new_store["logoURL"])
-
-        new_store["userID"] = user_id
-        new_store["createdAt"] = datetime.utcnow()
-        new_store["updatedAt"] = datetime.utcnow()
-        result = db.store.insert_one(new_store)
-        created_store = db.store.find_one({"_id": result.inserted_id})
+        # validar si el nombre de la tienda ya existe
+        if db.store.find_one({"name": new_store["name"]}):
+            raise HTTPException(status_code=400, detail="El nombre de la tienda ya está registrado")
+        else:
+            new_store["userID"] = user_id
+            new_store["createdAt"] = datetime.utcnow()
+            new_store["updatedAt"] = datetime.utcnow()
+            result = db.store.insert_one(new_store)
+            created_store = db.store.find_one({"_id": result.inserted_id})
 
         return storeEntity(created_store)
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al crear la tienda: {str(e)}")
-# Research
 
+# Research
 @store.get('')
 def get_stores():
     return storesEntity(db.store.find())
