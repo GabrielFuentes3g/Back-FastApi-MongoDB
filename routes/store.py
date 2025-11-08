@@ -82,8 +82,17 @@ def update_store_logo(store_id: str, logo_url: str): #Done
     return {"message": "logo de la tienda actualizado correctamente"}
 
 @store.put('/{store_id}/rating')
-def update_store_rating(store_id: str, rating: float):
-    return {"store_id": store_id, "rating": rating}
+def update_store_rating(store_id: str, rating: float): #Done
+    if rating < 0 or rating > 5:
+        raise HTTPException(status_code=400, detail="La calificación debe estar entre 0 y 5")
+    
+    result = db.store.update_one(
+        {"_id": ObjectId(store_id)},
+        {"$set": {"rating": rating, "updatedAt": datetime.utcnow()}}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="tienda no encontrada")
+    return {"message": "calificación de la tienda actualizada correctamente"}
 
 # Delete
 @store.delete('/{store_id}')
