@@ -70,8 +70,16 @@ def update_store_description(store_id: str, store: dict):
 
 
 @store.put('/{store_id}/logo')
-def update_store_logo(store_id: str, logo_url: str):
-    return {"store_id": store_id, "logo_url": logo_url}
+def update_store_logo(store_id: str, logo_url: str): #Done
+    if not logo_url.startswith("http") or not logo_url.endswith((".png", ".jpg", ".jpeg", ".gif")):
+        raise HTTPException(status_code=400, detail="URL de logo no válida")
+    result = db.store.update_one(
+        {"_id": ObjectId(store_id)},
+        {"$set": {"logoURL": logo_url, "updatedAt": datetime.utcnow()}}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="tienda no encontrada")
+    return {"message": "logo de la tienda actualizado correctamente"}
 
 @store.put('/{store_id}/rating')
 def update_store_rating(store_id: str, rating: float):
