@@ -51,16 +51,6 @@ def get_store_by_id(store_id: str): #Done
 
 
 # Update
-@store.put('/{store_id}') #gonna be deleted
-def update_store(store_id: str, store: Store):
-    updated_data = {**store.dict(), "updatedAt": datetime.utcnow()}
-    result = db.store.update_one(
-        {"_id": ObjectId(store_id)},
-        {"$set": updated_data}
-    )
-    if result.matched_count == 0:
-        raise HTTPException(status_code=404, detail="tienda no encontrada")
-    return {"message": "tienda actualizado correctamente"}
 
 @store.put('/{store_id}/description') #Done
 def update_store_description(store_id: str, store: dict):
