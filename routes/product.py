@@ -48,9 +48,16 @@ def get_products_by_store(store_id: str): #Done
     products = db.product.find({"storeId": store_id})
     return productsEntity(products)
     
-@product.get('/category/{category_name}') 
-def get_products_by_category(category_name: str):
-    return category_name
+@product.get('/category/{categoryId}') 
+def get_products_by_category(categoryId: str): #Done
+    if len(categoryId) != 24:
+        raise HTTPException(status_code=404, detail="Categoría no encontrada, formato no valido")
+    category_data = db.category.find_one({"_id": ObjectId(categoryId)})
+    if not category_data:
+        raise HTTPException(status_code=404, detail="Categoría no encontrada")
+    products = db.product.find({"categoriesId": categoryId})
+    return productsEntity(products)
+    
 
 
 # Update
