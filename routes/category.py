@@ -3,6 +3,7 @@ from config.db import db
 from fastapi import APIRouter, HTTPException
 from models.category import Category
 from schemas.category import categoryEntity, categoriesEntity
+from bson import ObjectId # type: ignore
 
 category = APIRouter(prefix="/categories", tags=["Categories"])
 
@@ -25,12 +26,12 @@ def get_categories(): #Done
     return categoriesEntity(db.category.find())
 
 @category.get('/{id}')
-def get_category_by_id(category_id: str):
-    return category_id
+def get_categoryName_by_id(category_id: str):
+    category_data = db.category.find_one({"_id": ObjectId(category_id)})
+    if not category_data:
+        raise HTTPException(status_code=404, detail="Categoria no encontrada")
+    return categoryEntity(category_data)
 
-@category.get('/name/{category_name}')
-def get_categories_by_name(category_name: str):
-    return category_name
 
 # Update
 @category.put('/{category_id}/name')
