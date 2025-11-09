@@ -54,16 +54,6 @@ def get_products_by_category(category_name: str):
 
 
 # Update
-@product.put('/products/{id}')
-def update_product(id: str, product: Product):
-    updated_data = {**product.dict(), "updatedAt": datetime.utcnow()}
-    result = db.product.update_one(
-        {"_id": ObjectId(id)},
-        {"$set": updated_data}
-    )
-    if result.matched_count == 0:
-        raise HTTPException(status_code=404, detail="Producto no encontrado")
-    return {"message": "Producto actualizado correctamente"}
 
 @product.put('/{product_id}/name')
 def update_product_name(product_id: str, name: str):
