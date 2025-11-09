@@ -117,10 +117,26 @@ def update_product_description(product_id: str, description: str): #Done
     )
     return {"message": "Descripción del producto actualizada correctamente"}
 
-
 @product.put('/{product_id}/stock')
-def update_product_stock(product_id: str, stockQuantity: int):
-    return {"product_id": product_id, "stockQuantity": stockQuantity}
+def update_product_stock(product_id: str, stockQuantity: int): #Done
+    #el valor no puede ser negativo
+    if stockQuantity < 0:
+        raise HTTPException(status_code=400, detail="La cantidad de stock no puede ser negativa")
+    if len(product_id) != 24:
+        raise HTTPException(status_code=404, detail="Producto no encontrado, formato no valido")
+    product = db.product.find_one({"_id": ObjectId(product_id)})
+    if not product:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+    db.product.update_one(
+        {"_id": ObjectId(product_id)},
+        {
+            "$set": {
+                "stockQuantity": stockQuantity,
+                "updatedAt": datetime.utcnow()
+            }
+        }
+    )
+    return {"message": "Cantidad de stock del producto actualizada correctamente"}
 
 @product.put('/{product_id}/price')
 def update_product_price(product_id: str, price: float):
