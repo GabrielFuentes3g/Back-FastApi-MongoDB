@@ -9,6 +9,6 @@ class Product(BaseModel):
     description: Optional[str] = None
     price: float                
     stockQuantity: Optional[int] = 0
-    categories: Optional[List[str]] = []
+    categoriesId: Optional[List[str]] = []
     createdAt: Optional[datetime] = None
     updatedAt: Optional[datetime] = None
