@@ -49,7 +49,7 @@ def get_products_by_store(store_id: str): #Done
     return productsEntity(products)
     
 @product.get('/category/{categoryId}') 
-def get_products_by_category(categoryId: str): #Done
+def get_products_by_categoryId(categoryId: str): #Done
     if len(categoryId) != 24:
         raise HTTPException(status_code=404, detail="Categoría no encontrada, formato no valido")
     category_data = db.category.find_one({"_id": ObjectId(categoryId)})
@@ -63,8 +63,22 @@ def get_products_by_category(categoryId: str): #Done
 # Update
 
 @product.put('/{product_id}/name')
-def update_product_name(product_id: str, name: str):
-    return {"product_id": product_id, "name": name}
+def update_product_name(product_id: str, name: str): #Done
+    product = db.product.find_one({"_id": ObjectId(product_id)})
+    if not product:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+    if db.product.find_one({"name": name, "storeId": product["storeId"]}):
+        raise HTTPException(status_code=400, detail="El nombre del producto ya está registrado en esta tienda")
+    db.product.update_one(
+        {"_id": ObjectId(product_id)},
+        {
+            "$set": {
+                "name": name,
+                "updatedAt": datetime.utcnow()
+            }
+        }
+    )
+    return {"message": "Nombre del producto actualizado correctamente"}
 
 @product.put('/products/{id}')
 def update_product_category(id: str,categoryId: str, product: Product): #Done
