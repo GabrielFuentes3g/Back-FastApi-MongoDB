@@ -31,20 +31,22 @@ def create_product(store_id: str, product: Product): #Done
 
 # Research
 @product.get('/products/{id}')
-def get_product_by_id(id: str): #G
+def get_product_by_id(id: str): #Done
     product_data = db.product.find_one({"_id": ObjectId(id)})
     if not product_data:
         raise HTTPException(status_code=404, detail="Producto no encontrado")
     return productEntity(product_data)
 
 @product.get('')
-def get_products(): #G
+def get_products(): #Done
     return productsEntity(db.product.find())
 
 @product.get('/store/{store_id}') 
-def get_products_by_store(store_id: str):
-    
-    return store_id
+def get_products_by_store(store_id: str): #Done
+    if len(store_id) != 24:
+        raise HTTPException(status_code=404, detail="Tienda no encontrada, formato no valido")
+    products = db.product.find({"storeId": store_id})
+    return productsEntity(products)
     
 @product.get('/category/{category_name}') 
 def get_products_by_category(category_name: str):
