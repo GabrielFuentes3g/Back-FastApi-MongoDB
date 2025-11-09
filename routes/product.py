@@ -100,8 +100,23 @@ def update_product_category(id: str,categoryId: str, product: Product): #Done
     return {"message": "Categoría añadida correctamente al producto"}
 
 @product.put('/{product_id}/description')
-def update_product_description(product_id: str, description: str):
-    return {"product_id": product_id, "description": description}
+def update_product_description(product_id: str, description: str): #Done
+    if len(product_id) != 24:
+        raise HTTPException(status_code=404, detail="Producto no encontrado, formato no valido")
+    product = db.product.find_one({"_id": ObjectId(product_id)})
+    if not product:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+    db.product.update_one(
+        {"_id": ObjectId(product_id)},
+        {
+            "$set": {
+                "description": description,
+                "updatedAt": datetime.utcnow()
+            }
+        }
+    )
+    return {"message": "Descripción del producto actualizada correctamente"}
+
 
 @product.put('/{product_id}/stock')
 def update_product_stock(product_id: str, stockQuantity: int):
