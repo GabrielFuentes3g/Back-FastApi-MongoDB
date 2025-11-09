@@ -8,7 +8,7 @@ category = APIRouter(prefix="/categories", tags=["Categories"])
 
 # Create
 @category.post('')
-def create_category(category: Category):
+def create_category(category: Category): #Done
     if db.category.find_one({"name": category.name}):
         raise HTTPException(status_code=400, detail="El nombre de la categoria ya está registrado")
     else:
@@ -21,8 +21,8 @@ def create_category(category: Category):
 
 # Research
 @category.get('')
-def get_categories():
-    return ""
+def get_categories(): #Done
+    return categoriesEntity(db.category.find())
 
 @category.get('/{id}')
 def get_category_by_id(category_id: str):
