@@ -26,7 +26,7 @@ def get_categories(): #Done
     return categoriesEntity(db.category.find())
 
 @category.get('/{id}')
-def get_categoryName_by_id(category_id: str):
+def get_categoryName_by_id(category_id: str): #Done
     category_data = db.category.find_one({"_id": ObjectId(category_id)})
     if not category_data:
         raise HTTPException(status_code=404, detail="Categoria no encontrada")
@@ -52,5 +52,11 @@ def update_category_name(category_id: str, name: str):
         return {"message": "Nombre de la categoria actualizado correctamente"}
 # Delete
 @category.delete('/{category_id}')
-def delete_category(category_id: str):  
-    return category_id
+def delete_category(category_id: str): #Done
+    if len(category_id) != 24:
+        raise HTTPException(status_code=400, detail="ID de categoria invalido")
+    result = db.category.delete_one({"_id": ObjectId(category_id)})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Categoria no encontrada")
+    db.categories.delete_one({"_id": ObjectId(category_id)})
+    return {"message": "Categoria eliminada correctamente"}
