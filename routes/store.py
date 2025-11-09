@@ -95,7 +95,7 @@ def update_store_rating(store_id: str, rating: float): #Done
     return {"message": "calificación de la tienda actualizada correctamente"}
 
 # Delete
-@store.delete('/{store_id}')
+@store.delete('/{store_id}') #Done
 def delete_store(store_id: str):
     result = db.store.delete_one({"_id": ObjectId(store_id)})
 
