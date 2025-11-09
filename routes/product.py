@@ -9,8 +9,22 @@ product = APIRouter(prefix="/products", tags=["Products"])
 
 # Create
 @product.post('') 
-def create_product(product: Product): #G
-    new_product = dict(product)
+def create_product(store_id: str, product: Product): #Done
+    if len(store_id) != 24:
+        raise HTTPException(status_code=404, detail="Tienda no encontrada, formato no valido")    
+    new_product = product.dict()
+    
+    store_data = db.store.find_one({"_id": ObjectId(store_id)})
+    if not store_data:
+        raise HTTPException(status_code=404, detail="Tienda no encontrada")
+    
+    if db.product.find_one({"name": new_product["name"], "storeId": store_id}):
+        raise HTTPException(status_code=400, detail="El nombre del producto ya está registrado en esta tienda")
+    
+    new_product["storeId"] = store_id
+    new_product["createdAt"] = datetime.utcnow()
+    new_product["updatedAt"] = datetime.utcnow()
+    
     result = db.product.insert_one(new_product)
     created_product = db.product.find_one({"_id": result.inserted_id})
     return productEntity(created_product)
