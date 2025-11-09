@@ -34,9 +34,22 @@ def get_categoryName_by_id(category_id: str):
 
 
 # Update
-@category.put('/{category_id}/name')
+@category.put('/{category_id}/name') #Done
 def update_category_name(category_id: str, name: str):
-    return {"category_id": category_id, "name": name}
+    if db.category.find_one({"name": name}):
+        raise HTTPException(status_code=400, detail="El nombre de la categoria ya está registrado")
+    else:
+        result = db.category.update_one(
+            {"_id": ObjectId(category_id)},
+            {"$set": {"name": name}}
+        )
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Categoria no encontrada")
+        db.categories.update_one(
+            {"_id": ObjectId(category_id)},
+            {"$set": {"name": name}}
+        )
+        return {"message": "Nombre de la categoria actualizado correctamente"}
 # Delete
 @category.delete('/{category_id}')
 def delete_category(category_id: str):  
