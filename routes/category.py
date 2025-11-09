@@ -1,5 +1,6 @@
+from unittest import result
 from config.db import db
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from models.category import Category
 from schemas.category import categoryEntity, categoriesEntity
 
@@ -7,8 +8,16 @@ category = APIRouter(prefix="/categories", tags=["Categories"])
 
 # Create
 @category.post('')
-def create_product(category: Category):
-    return category
+def create_category(category: Category):
+    if db.category.find_one({"name": category.name}):
+        raise HTTPException(status_code=400, detail="El nombre de la categoria ya está registrado")
+    else:
+        new_category = dict(category)
+        result = db.category.insert_one(new_category)
+        created_category = db.category.find_one({"_id": result.inserted_id})
+        db.categories.insert_one(created_category)
+        return {"message": "Categoria creada correctamente"}
+
 
 # Research
 @category.get('')
