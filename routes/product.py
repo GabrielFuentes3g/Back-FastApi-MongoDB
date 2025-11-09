@@ -59,6 +59,25 @@ def get_products_by_category(category_name: str):
 def update_product_name(product_id: str, name: str):
     return {"product_id": product_id, "name": name}
 
+@product.put('/products/{id}')
+def update_product_category(id: str,categoryId: str, product: Product): #Done
+    product = db.product.find_one({"_id": ObjectId(id)})
+    if not product:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+    category = db.category.find_one({"_id": ObjectId(categoryId)})
+    if not category:
+        raise HTTPException(status_code=404, detail="Categoría no encontrada")
+    if categoryId in product.get("categoriesId", []):
+        raise HTTPException(status_code=400, detail="La categoría ya está asignada a este producto")
+    db.product.update_one(
+        {"_id": ObjectId(id)},
+        {
+            "$push": {"categoriesId": categoryId},
+            "$set": {"updatedAt": datetime.utcnow()}
+        }
+    )
+    return {"message": "Categoría añadida correctamente al producto"}
+
 @product.put('/{product_id}/description')
 def update_product_description(product_id: str, description: str):
     return {"product_id": product_id, "description": description}
