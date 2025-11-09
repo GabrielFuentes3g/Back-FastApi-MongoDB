@@ -4,7 +4,7 @@ from typing import List, Optional
 
 class Product(BaseModel):
     id: Optional[str] = None
-    storeid: str
+    storeId: str
     name: str                   
     description: Optional[str] = None
     price: float                
