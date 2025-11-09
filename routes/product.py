@@ -161,6 +161,8 @@ def update_product_price(product_id: str, price: float): #Done
 # Delete
 @product.delete('/products/{id}')
 def delete_product(id: str):
+    if len(id) != 24:
+        raise HTTPException(status_code=400, detail="ID de producto invalido")
     result = db.product.delete_one({"_id": ObjectId(id)})
 
     if result.deleted_count == 0:
@@ -168,6 +170,25 @@ def delete_product(id: str):
     
     return {"message": "Producto eliminado correctamente"}
 
-@product.delete('/products/{id}')
-def delete_category_from_product(id: str,categoryId: str):
-    return {"product_id": id, "categoryId": categoryId}
+@product.delete('/products/{id}/categories/{categoryId}')
+def delete_category_from_product(id: str,categoryId: str): #Done
+    if len(id) != 24:
+        raise HTTPException(status_code=400, detail="ID de producto invalido")
+    if len(categoryId) != 24:
+        raise HTTPException(status_code=400, detail="ID de categoría invalido")
+    product = db.product.find_one({"_id": ObjectId(id)})
+    if not product:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+    category = db.category.find_one({"_id": ObjectId(categoryId)})
+    if not category:
+        raise HTTPException(status_code=404, detail="Categoría no encontrada")
+    if categoryId not in product.get("categoriesId", []):
+        raise HTTPException(status_code=400, detail="La categoría no está asignada a este producto")
+    db.product.update_one(
+        {"_id": ObjectId(id)},
+        {
+            "$pull": {"categoriesId": categoryId},
+            "$set": {"updatedAt": datetime.utcnow()}
+        }
+    )
+    return {"message": "Categoría eliminada correctamente del producto"}
