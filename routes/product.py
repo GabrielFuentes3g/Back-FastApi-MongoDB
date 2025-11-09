@@ -120,3 +120,7 @@ def delete_product(id: str):
         raise HTTPException(status_code=404, detail="Producto no encontrado")
     
     return {"message": "Producto eliminado correctamente"}
+
+@product.delete('/products/{id}')
+def delete_category_from_product(id: str,categoryId: str):
+    return {"product_id": id, "categoryId": categoryId}
