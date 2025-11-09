@@ -7,7 +7,7 @@ from bson import ObjectId # type: ignore
 
 product = APIRouter(prefix="/products", tags=["Products"])
 
-# Crate
+# Create
 @product.post('') 
 def create_product(product: Product): #G
     new_product = dict(product)
@@ -27,11 +27,12 @@ def get_product_by_id(id: str): #G
 def get_products(): #G
     return productsEntity(db.product.find())
 
-@product.get('/store/{store_id}')
+@product.get('/store/{store_id}') 
 def get_products_by_store(store_id: str):
+    
     return store_id
     
-@product.get('/category/{category_name}')
+@product.get('/category/{category_name}') 
 def get_products_by_category(category_name: str):
     return category_name
 
