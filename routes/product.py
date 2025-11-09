@@ -160,7 +160,7 @@ def update_product_price(product_id: str, price: float): #Done
 
 # Delete
 @product.delete('/products/{id}')
-def delete_product(id: str):
+def delete_product(id: str): #Done
     if len(id) != 24:
         raise HTTPException(status_code=400, detail="ID de producto invalido")
     result = db.product.delete_one({"_id": ObjectId(id)})
