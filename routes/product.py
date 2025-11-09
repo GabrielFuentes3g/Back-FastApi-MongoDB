@@ -1,5 +1,6 @@
 from datetime import datetime
 from fastapi import APIRouter, HTTPException
+from pydantic import HttpUrl
 from models.product import Product
 from config.db import db
 from schemas.product import productEntity,productsEntity
@@ -61,6 +62,23 @@ def get_products_by_categoryId(categoryId: str): #Done
 
 
 # Update
+@product.put('/{product_id}/image')
+def update_product_image(product_id: str, image_url: str):
+    if not image_url.startswith("http") or not image_url.endswith((".png", ".jpg", ".jpeg", ".gif")):
+        raise HTTPException(status_code=400, detail="URL de imagen no válida")
+    if len(product_id) != 24:
+        raise HTTPException(status_code=400, detail="ID de producto inválido")
+    product_data = db.product.find_one({"_id": ObjectId(product_id)})
+    if not product_data:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+    result = db.product.update_one(
+        {"_id": ObjectId(product_id)},
+        {"$set": {"imageURL": image_url, "updatedAt": datetime.utcnow()}}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+    return {"message": "Imagen del producto actualizada correctamente"}
+
 
 @product.put('/{product_id}/name')
 def update_product_name(product_id: str, name: str): #Done
