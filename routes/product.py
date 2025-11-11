@@ -1,6 +1,5 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException
-from pydantic import HttpUrl
 from models.product import Product
 from config.db import db
 from schemas.product import productEntity,productsEntity
@@ -9,26 +8,38 @@ from bson import ObjectId # type: ignore
 product = APIRouter(prefix="/products", tags=["Products"])
 
 # Create
-@product.post('') 
+@product.post('')
 def create_product(store_id: str, product: Product): #Done
     if len(store_id) != 24:
-        raise HTTPException(status_code=404, detail="Tienda no encontrada, formato no valido")    
-    new_product = product.dict()
-    
+        raise HTTPException(status_code=400, detail="ID de tienda inválido")
+
     store_data = db.store.find_one({"_id": ObjectId(store_id)})
     if not store_data:
         raise HTTPException(status_code=404, detail="Tienda no encontrada")
-    
-    if db.product.find_one({"name": new_product["name"], "storeId": store_id}):
+
+    if db.product.find_one({"name": product.name, "storeId": store_id}):
         raise HTTPException(status_code=400, detail="El nombre del producto ya está registrado en esta tienda")
-    
-    new_product["storeId"] = store_id
-    new_product["createdAt"] = datetime.utcnow()
-    new_product["updatedAt"] = datetime.utcnow()
-    
-    result = db.product.insert_one(new_product)
-    created_product = db.product.find_one({"_id": result.inserted_id})
-    return productEntity(created_product)
+
+    product_dict = dict(product)
+
+    product_dict["storeId"] = store_id
+
+    if product_dict.get("imageURL") is not None:
+        product_dict["imageURL"] = str(product_dict["imageURL"])
+
+    if isinstance(product_dict.get("createdAt"), str):
+        product_dict["createdAt"] = datetime.fromisoformat(product_dict["createdAt"].replace("Z", "+00:00"))
+
+    if isinstance(product_dict.get("updatedAt"), str):
+        product_dict["updatedAt"] = datetime.fromisoformat(product_dict["updatedAt"].replace("Z", "+00:00"))
+
+    try:
+        db.product.insert_one(product_dict)
+        return {"message": "Producto creado correctamente"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al insertar producto: {str(e)}")
+
+
 
 # Research
 @product.get('/products/{id}')
