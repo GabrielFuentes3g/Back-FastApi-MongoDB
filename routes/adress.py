@@ -1,3 +1,4 @@
+from http.client import HTTPException
 from config.db import db
 from fastapi import APIRouter
 from models.address import Address
@@ -8,10 +9,17 @@ address = APIRouter(prefix="/addresses", tags=["Addresses"])
 
 # Create
 @address.post('')
-def create_address(address_data: Address):
-    db.address.insert_one(address_data.dict())
-    return addressEntity(address_data)
-
+def create_address(userId: str, address_data: Address): #Done
+    if len(userId) != 24:
+        raise HTTPException(status_code=400, detail="ID de usuario inválido")
+    user_data = db.user.find_one({"_id": ObjectId(userId)})
+    if not user_data:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    address_dict = dict(address_data)
+    address_dict["userId"] = userId
+    result = db.address.insert_one(address_dict)
+    new_address = db.address.find_one({"_id": result.inserted_id})
+    return addressEntity(new_address)
 # Research
 @address.get('')
 def get_addresses():
