@@ -1,3 +1,4 @@
+import datetime
 from http.client import HTTPException
 from config.db import db
 from fastapi import APIRouter
@@ -15,14 +16,16 @@ def create_address(userId: str, address_data: Address): #Done
     user_data = db.user.find_one({"_id": ObjectId(userId)})
     if not user_data:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
-    address_dict = dict(address_data)
-    address_dict["userId"] = userId
+    address_dict = address_data.dict()
+    address_dict["userid"] = userId
     result = db.address.insert_one(address_dict)
     new_address = db.address.find_one({"_id": result.inserted_id})
     return addressEntity(new_address)
+
+
 # Research
 @address.get('')
-def get_addresses():
+def get_addresses(): #Done
     return addressesEntity(db.address.find())
 
 @address.get('/{address_id}')
