@@ -46,9 +46,17 @@ def get_addresses_by_user(user_id: str):
 
 # Update
 @address.put('/{address_id}')
-def update_address(address_id: str, address_data: Address):
-    db.address.update_one({"_id": ObjectId(address_id)}, {"$set": address_data.dict()})
-    return addressEntity(address_data)
+def update_address(address_id: str, address_data: Address): #Done
+    if len(address_id) != 24:
+        raise HTTPException(status_code=400, detail="ID de dirección inválido")
+    result = db.address.update_one(
+        {"_id": ObjectId(address_id)},
+        {"$set": address_data.dict()}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Dirección no encontrada")
+    updated_address = db.address.find_one({"_id": ObjectId(address_id)})
+    return addressEntity(updated_address)
 
 # Delete
 @address.delete('/{address_id}')
