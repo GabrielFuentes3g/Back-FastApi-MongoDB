@@ -37,9 +37,12 @@ def get_address_by_id(address_id: str): #Done
         raise HTTPException(status_code=404, detail="Dirección no encontrada")
     return addressEntity(address_data)
 
-@address.get('/user/{user_id}')
+@address.get('/user/{user_id}') #Done
 def get_addresses_by_user(user_id: str):
-    return addressesEntity(db.address.find({"user_id": user_id}))
+    if len(user_id) != 24:
+        raise HTTPException(status_code=400, detail="ID de usuario inválido")
+    addresses = addressesEntity(db.address.find({"userid": user_id}))
+    return addresses
 
 # Update
 @address.put('/{address_id}')
