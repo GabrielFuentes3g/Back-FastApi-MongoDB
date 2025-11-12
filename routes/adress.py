@@ -60,6 +60,10 @@ def update_address(address_id: str, address_data: Address): #Done
 
 # Delete
 @address.delete('/{address_id}')
-def delete_address(address_id: str):
-    db.address.delete_one({"_id": ObjectId(address_id)})
-    return {"message": "Address deleted successfully"}
+def delete_address(address_id: str): #Done
+    if len(address_id) != 24:
+        raise HTTPException(status_code=400, detail="ID de dirección inválido")
+    result = db.address.delete_one({"_id": ObjectId(address_id)})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Dirección no encontrada")
+    return {"message": "Dirección eliminada correctamente"}
