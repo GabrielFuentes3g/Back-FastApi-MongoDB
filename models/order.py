@@ -2,19 +2,15 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import List, Optional
 
-class OrderItem(BaseModel):
-    productid: str
-    name: str
-    price: float
-    quantity: int
-    subtotal: float
+from models.orderItem import OrderItem
 
 class Order(BaseModel):
     id: Optional[str] = None
-    userid: str
+    userId: str
     orderDate: datetime
-    status: str  
+    status: str
     totalAmount: float
-    items: List[OrderItem]
+    #Itemsid: List[str] = []
+    items: List[OrderItem] = []
     createdAt: Optional[datetime] = None
     updatedAt: Optional[datetime] = None
