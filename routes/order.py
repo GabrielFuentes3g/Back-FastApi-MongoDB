@@ -1,17 +1,46 @@
+import datetime
 from config.db import db
-from fastapi import APIRouter
-from models.order import Order
+from fastapi import APIRouter, HTTPException
+from models.order import Order, OrderItem
+from routes import product
+from schemas.order import orderEntity, ordersEntity
 
 order = APIRouter(prefix="/orders", tags=["Orders"])
 
 # Create
 @order.post('')
-def create_order(order_data: Order):
-    return order_data
+def create_order(order_data: Order, itemsIdAndQuantity: dict, userid: str, orderdate: str):
+    for item_id in itemsIdAndQuantity:
+        order_data.items.append(create_order_items(itemsIdAndQuantity[item_id]['productId'], itemsIdAndQuantity[item_id]['quantity'], order_data))
+    #validar el user id
+    if len(userid) != 24:
+        raise HTTPException(status_code=400, detail="Invalid user ID")
+    order_data.userid = userid
+    order_data.orderDate = orderdate
+    order_data.status = "Pending"
+    order_data.totalAmount = sum(item.subtotal for item in order_data.items)
+    order_data.createdAt = datetime.datetime.now()
+    order_data.updatedAt = datetime.datetime.now()
+    result = db.order.insert_one(order_data.dict())
+    return {"order_id": str(result.inserted_id)}
+    
 
-@order.post('/{order_id}/items')
-def create_order_items(order_id: str, items: list):
-        return {"order_id": order_id, "items": items}
+# @order.post('/{order_id}/items')
+def create_order_items(productId: str, quantity: int, order: OrderItem):
+    product_data = db.product.find_one({"_id": productId})
+    if not product_data:
+        raise HTTPException(status_code=404, detail="Product not found")
+    name = product_data['name']
+    price = product_data['price']
+    subtotal = price * quantity
+    order_item = OrderItem(
+        productid=productId,
+        name=name,
+        price=price,
+        quantity=quantity,
+        subtotal=subtotal
+    )
+    return order_item
 
 # Research
 @order.get('')
