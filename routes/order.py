@@ -1,9 +1,11 @@
 import datetime
+from unittest import result
 from config.db import db
 from fastapi import APIRouter, HTTPException
-from models.order import Order, OrderItem
-from routes import product
+from models.order import Order
+from models.orderItem import OrderItem
 from schemas.order import orderEntity, ordersEntity
+from schemas.orderItem import orderItemEntity, orderItemsEntity
 
 order = APIRouter(prefix="/orders", tags=["Orders"])
 
@@ -56,8 +58,18 @@ def get_order_by_id(order_id: str):
     return {"order_id": order_id}
 
 @order.get('/{order_id}/items')
-def get_order_items(order_id: str):
-    return {"order_id": order_id}
+def get_order_items_by_id(order_id: str):
+    #validar order id
+    if len(order_id) != 24:
+        raise HTTPException(status_code=400, detail="Invalid order ID")
+    result = orderItemsEntity(db.orderItem.find({"orderid": order_id}))
+    return result
+
+@order.get('/items')
+def get_order_items():
+    return orderItemsEntity(db.orderItem.find())
+
+    
 
 # Update
 @order.put('/{order_id}/status')
