@@ -9,8 +9,8 @@ orderItem = APIRouter(prefix="/orderItems", tags=["OrderItems"])
 
 
 #create
-@orderItem.post('/{order_id}/items')
-def create_order_item(productId: str, quantity: int, order_data: OrderItem):
+@orderItem.post('/{order_id}/items') 
+def create_order_item(productId: str, quantity: int, order_data: OrderItem): #Done
     product_data = db.product.find_one({"_id": ObjectId(productId)})
     if not product_data:
         raise HTTPException(status_code=404, detail="Product not found")
@@ -28,7 +28,7 @@ def create_order_item(productId: str, quantity: int, order_data: OrderItem):
 
 #research
 @orderItem.get('/{order_id}/items')
-def get_order_items_by_id(order_id: str):
+def get_order_items_by_id(order_id: str): #Done
     #validar order id
     if len(order_id) != 24:
         raise HTTPException(status_code=400, detail="Invalid order ID")
