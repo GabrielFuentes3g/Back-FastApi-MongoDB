@@ -9,7 +9,7 @@ orderItem = APIRouter(prefix="/orderItems", tags=["OrderItems"])
 
 
 #create
-@orderItem.post('/{order_id}/items') 
+@orderItem.post('/{orderItem_id}/items') 
 def create_order_item(productId: str, quantity: int, order_data: OrderItem): #Done
     product_data = db.product.find_one({"_id": ObjectId(productId)})
     if not product_data:
@@ -27,24 +27,30 @@ def create_order_item(productId: str, quantity: int, order_data: OrderItem): #Do
 
 
 #research
-@orderItem.get('/{order_id}/items')
-def get_order_items_by_id(order_id: str): #Done
-    #validar order id
-    if len(order_id) != 24:
-        raise HTTPException(status_code=400, detail="Invalid order ID")
-    result = orderItemsEntity(db.orderItem.find({"orderid": order_id}))
-    return result
+@orderItem.get('/{orderItem_id}/items') #Done
+def get_order_items_by_id(orderItem_id: str): 
+    orderItem_data = db.orderItem.find_one({"_id": ObjectId(orderItem_id)})
+    if not orderItem_data:
+        raise HTTPException(status_code=404, detail="Order item no encontrado")
+    return orderItemEntity(orderItem_data)
 
-@orderItem.get('/items')
+@orderItem.get('/items') #Done
 def get_order_items():
     return orderItemsEntity(db.orderItem.find())
 
 
 #update
 @orderItem.put('/items/{item_id}/quantity')
-def update_order_item_quantity(item_id: str, quantity: int):
-    return ""
-
+def update_order_item_quantity(item_id: str, quantity: int): #Done
+    orderItem_data = db.orderItem.find_one({"_id": ObjectId(item_id)})
+    if not orderItem_data:
+        raise HTTPException(status_code=404, detail="Order item not found")
+    subtotal = orderItem_data['price'] * quantity
+    db.orderItem.update_one(
+        {"_id": ObjectId(item_id)},
+        {"$set": {"quantity": quantity, "subtotal": subtotal}}
+    )
+    return get_order_items_by_id(item_id)
 
 #delete
 @orderItem.delete('/items/{item_id}')
