@@ -54,5 +54,9 @@ def update_order_item_quantity(item_id: str, quantity: int): #Done
 
 #delete
 @orderItem.delete('/items/{item_id}')
-def delete_order_item(item_id: str):
-    return ""
+def delete_order_item(item_id: str): #Done
+    orderItem_data = db.orderItem.find_one({"_id": ObjectId(item_id)})
+    if not orderItem_data:
+        raise HTTPException(status_code=404, detail="Order item not found")
+    db.orderItem.delete_one({"_id": ObjectId(item_id)})
+    return {"message": "Order item deleted successfully"}
