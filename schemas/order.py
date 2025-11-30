@@ -5,7 +5,6 @@ def orderEntity(item) -> dict:
         "orderDate": item.get("orderDate"),
         "status": item.get("status"),
         "totalAmount": item.get("totalAmount"),
-        "items": item.get("items", []),
         "createdAt": item.get("createdAt"),
         "updatedAt": item.get("updatedAt")
     }

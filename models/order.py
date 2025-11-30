@@ -10,6 +10,5 @@ class Order(BaseModel):
     orderDate: datetime
     status: str
     totalAmount: float
-    items: List[OrderItem] = []
     createdAt: Optional[datetime] = None
     updatedAt: Optional[datetime] = None
