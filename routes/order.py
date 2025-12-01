@@ -79,6 +79,9 @@ def delete_order(order_id: str): #Done
         raise HTTPException(status_code=400, detail="Only orders with status 'creating' or 'cancelled' can be deleted")
     #eliminar los items asociados a esta orden
     db.orderItem.delete_many({"orderId": order_id})
+    #eliminar el pago asociado a esta orden
+    db.payment.delete_many({"order_id": order_id})
+    #eliminar la orden
     result = db.order.delete_one({"_id": ObjectId(order_id)})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Order not found")
