@@ -70,5 +70,16 @@ def update_order_status(order_id: str, status: str): #Done
 
 # Delete
 @order.delete('/{order_id}')
-def delete_order(order_id: str):
-    return {"order_id": order_id}
+def delete_order(order_id: str): #Done
+    #eliminar solo si el status es "creating" o "cancelled"
+    order_data = db.order.find_one({"_id": ObjectId(order_id)})
+    if not order_data:
+        raise HTTPException(status_code=404, detail="Order not found")
+    if order_data['status'] not in ["creating", "cancelled"]:
+        raise HTTPException(status_code=400, detail="Only orders with status 'creating' or 'cancelled' can be deleted")
+    #eliminar los items asociados a esta orden
+    db.orderItem.delete_many({"orderId": order_id})
+    result = db.order.delete_one({"_id": ObjectId(order_id)})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Order not found")
+    return {"message": "Order deleted successfully"}
