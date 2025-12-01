@@ -42,12 +42,15 @@ def get_orders(): #Done
     return ordersEntity(db.order.find())
 
 @order.get('/user/{user_id}')
-def get_orders_by_user(user_id: str):
+def get_orders_by_user(user_id: str): #Done
     return ordersEntity(db.order.find({"userId": user_id}))
 
 @order.get('/{order_id}')
 def get_order_by_id(order_id: str):
-    return {"order_id": order_id}
+    order_data = db.order.find_one({"_id": ObjectId(order_id)})
+    if not order_data:
+        raise HTTPException(status_code=404, detail="Order not found")
+    return orderEntity(order_data)
 
 
 # Update
