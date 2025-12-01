@@ -57,6 +57,9 @@ def update_payment_method(payment_id: str, method: str): #Done
 
 # Delete
 @payment.delete('/{payment_id}')
-def delete_payment(payment_id: str):
+def delete_payment(payment_id: str): #Done
+    payment_data = db.payment.find_one({"_id": ObjectId(payment_id)})
+    if not payment_data:
+        raise HTTPException(status_code=404, detail="Payment not found")
     db.payment.delete_one({"_id": ObjectId(payment_id)})
     return {"message": "Payment deleted successfully"}
