@@ -46,7 +46,7 @@ def get_orders_by_user(user_id: str): #Done
     return ordersEntity(db.order.find({"userId": user_id}))
 
 @order.get('/{order_id}')
-def get_order_by_id(order_id: str):
+def get_order_by_id(order_id: str): #Done
     order_data = db.order.find_one({"_id": ObjectId(order_id)})
     if not order_data:
         raise HTTPException(status_code=404, detail="Order not found")
@@ -55,7 +55,16 @@ def get_order_by_id(order_id: str):
 
 # Update
 @order.put('/{order_id}/status')
-def update_order_status(order_id: str, status: str):
+def update_order_status(order_id: str, status: str): #Done
+    valid_statuses = ["creating", "processing", "shipped", "delivered", "cancelled"]
+    if status not in valid_statuses:
+        raise HTTPException(status_code=400, detail="Invalid status value")
+    result = db.order.update_one(
+        {"_id": ObjectId(order_id)},
+        {"$set": {"status": status, "updatedAt": datetime.datetime.now()}}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Order not found")
     return {"order_id": order_id, "status": status}
 
 
