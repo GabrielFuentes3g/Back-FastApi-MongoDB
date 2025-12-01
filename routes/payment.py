@@ -1,5 +1,6 @@
+from datetime import datetime
 from config.db import db
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from models.payment import Payment
 from schemas.payment import paymentEntity, paymentsEntity
 from bson import ObjectId # type: ignore
@@ -8,21 +9,37 @@ payment = APIRouter(prefix="/payments", tags=["Payments"])
 
 # Create
 @payment.post('')
-def create_payment(payment_data: Payment):
-    return paymentEntity(payment_data)
+def create_payment(orderId: str,method: str, payment_data: Payment): #Done
+    #validar si la orden existe
+    order_data = db.order.find_one({"_id": ObjectId(orderId)})
+    if not order_data:
+        raise HTTPException(status_code=404, detail="Order not found")
+    #validar si ya existe un pago para esta orden
+    existing_payment = db.payment.find_one({"orderId": orderId})
+    if existing_payment:
+        raise HTTPException(status_code=400, detail="Payment already exists for this order")
+    payment = dict(payment_data)
+    payment['orderId'] = orderId
+    payment['paymentMethod'] = method
+    payment['paymentDate'] = datetime.now()
+    payment['status'] = "completed"
+    payment['amount'] = order_data['totalAmount']
+    result = db.payment.insert_one(payment)
+    payment['id'] = str(result.inserted_id)
+    return {"id": str(result.inserted_id)}
 
 # Research
 @payment.get('')
-def get_payments():
+def get_payments(): #Done
     return paymentsEntity(db.payment.find())
 
 @payment.get('/{payment_id}')
-def get_payment_by_id(payment_id: str):
+def get_payment_by_id(payment_id: str): #Done
     return paymentEntity(db.payment.find_one({"_id": ObjectId(payment_id)}))
 
 @payment.get('/order/{order_id}')
-def get_payments_by_order(order_id: str):
-    return paymentsEntity(db.payment.find({"order_id": order_id}))
+def get_payment_by_order(order_id: str): #Done
+    return paymentEntity(db.payment.find_one({"order_id": order_id}))
 
 # Update
 @payment.put('/{payment_id}/status')
