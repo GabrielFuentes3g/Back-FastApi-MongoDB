@@ -43,7 +43,7 @@ def get_orders(): #Done
 
 @order.get('/user/{user_id}')
 def get_orders_by_user(user_id: str):
-    return {"user_id": user_id}
+    return ordersEntity(db.order.find({"userId": user_id}))
 
 @order.get('/{order_id}')
 def get_order_by_id(order_id: str):
