@@ -19,8 +19,6 @@ def create_order(userId: str, order_data: Order ): #Done
     user_data = db.user.find_one({"_id": ObjectId(userId)})
     if not user_data:
         raise HTTPException(status_code=404, detail="User not found")
-
-
     order = dict(order_data)
     order
     id: Optional[str] = None
@@ -39,7 +37,7 @@ def create_order(userId: str, order_data: Order ): #Done
 # Research
 @order.get('')
 def get_orders():
-    return ""
+    return ordersEntity(db.order.find())
 
 @order.get('/user/{user_id}')
 def get_orders_by_user(user_id: str):
