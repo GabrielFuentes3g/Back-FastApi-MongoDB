@@ -44,7 +44,11 @@ def get_payment_by_order(order_id: str): #Done
 # Update
 @payment.put('/{payment_id}/status')
 def update_payment_status(payment_id: str, status: str):
-    return {"payment_id": payment_id, "status": status}
+    news = ["pending", "completed", "failed", "refunded"]
+    if status not in news:
+        raise HTTPException(status_code=400, detail="Invalid status value")
+    db.payment.update_one({"_id": ObjectId(payment_id)}, {"$set": {"status": status}})
+    return get_payment_by_id(payment_id)
 
 @payment.put('/{payment_id}/method')
 def update_payment_method(payment_id: str, method: str):
