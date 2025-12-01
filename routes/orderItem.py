@@ -10,12 +10,13 @@ orderItem = APIRouter(prefix="/orderItems", tags=["OrderItems"])
 
 #create
 @orderItem.post('/{orderItem_id}/items') 
-def create_order_item(productId: str, quantity: int, order_data: OrderItem): #Done
+def create_order_item(productId: str,orderId: str, quantity: int, orderItem_data: OrderItem): #Done
     product_data = db.product.find_one({"_id": ObjectId(productId)})
     if not product_data:
         raise HTTPException(status_code=404, detail="Product not found")
 
-    order_item = dict(order_data)
+    order_item = dict(orderItem_data)
+    order_item['orderId'] = orderId
     order_item['productId'] = productId
     order_item['name'] = product_data['name']
     order_item['quantity'] = quantity
